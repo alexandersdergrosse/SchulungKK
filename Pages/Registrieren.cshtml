@@ -1,0 +1,145 @@
+﻿@page
+@model SchulungKK.Pages.RegistrierenModel
+@{
+    ViewData["Title"] = "Registrieren";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+
+                <!-- Logo / Icon -->
+                <div class="text-center mb-4">
+                    <div style="font-size: 60px; color: #0066cc;">🔐</div>
+                    <h2 class="mt-3">Registrieren</h2>
+                    <p class="text-muted">Erstellen Sie ein neues Konto</p>
+                </div>
+
+                <!-- Erfolgsmeldung -->
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="alert alert-success" role="alert">
+                        ✅ @Model.SuccessMessage
+                    </div>
+                }
+
+                <!-- Fehlermeldung -->
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        ❌ @Model.ErrorMessage
+                    </div>
+                }
+
+                <!-- Registrierungs Formular -->
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bold">Vollständiger Name</label>
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="name"
+                               name="name"
+                               asp-for="Name"
+                               required
+                               placeholder="Max Mustermann">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-bold">Benutzername</label>
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="username"
+                               name="username"
+                               asp-for="Username"
+                               required
+                               placeholder="Benutzername wählen (nachname)">
+                        <small class="text-muted">Mindestens 3 Zeichen</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">E-Mail</label>
+                        <input type="email"
+                               class="form-control form-control-lg"
+                               id="email"
+                               name="email"
+                               asp-for="Email"
+                               required
+                               placeholder="nachname@kreutztraeger.com">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">Passwort</label>
+                        <input type="password"
+                               class="form-control form-control-lg"
+                               id="password"
+                               name="password"
+                               asp-for="Password"
+                               required
+                               minlength="6"
+                               placeholder="Ihr Passwort">
+                        <small class="text-muted">Mindestens 6 Zeichen</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="passwordConfirm" class="form-label fw-bold">Passwort wiederholen</label>
+                        <input type="password"
+                               class="form-control form-control-lg"
+                               id="passwordConfirm"
+                               name="passwordConfirm"
+                               asp-for="PasswordConfirm"
+                               required
+                               minlength="6"
+                               placeholder="Passwort bestätigen">
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Jetzt registrieren
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-muted mb-0">
+                            Bereits ein Konto?
+                            <a asp-page="/Anmelden" class="text-decoration-none">Jetzt anmelden</a>
+                        </p>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        border: none;
+    }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            transition: all 0.3s;
+        }
+</style>
+
+@if (ViewData["RedirectToLogin"] != null && (bool)ViewData["RedirectToLogin"])
+{
+    <script>
+        setTimeout(function() {
+            window.location.href = '/Anmelden';
+        }, 1000); // Nach 1 Sekunden zur Anmelde-Seite
+    </script>
+}

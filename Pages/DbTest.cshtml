@@ -1,0 +1,31 @@
+﻿@page
+@model SchulungKK.Pages.DbTestModel
+@{
+    ViewData["Title"] = "Datenbank-Test";
+}
+
+<div class="container mt-5">
+    <h1>🔍 Datenbank-Test</h1>
+
+    <div class="alert alert-info mt-4">
+        <h5>Context Status:</h5>
+        <p><strong>Context ist null:</strong> @Model.ContextIsNull</p>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5>Ergebnis:</h5>
+            <p style="white-space: pre-line; font-size: 16px;"><strong>@Model.Message</strong></p>
+
+            <hr>
+
+            <h5>Connection String:</h5>
+            <p><code>@Model.ConnectionString</code></p>
+
+            <hr>
+
+            <h5>Anzahl Benutzer in DB:</h5>
+            <p class="h3">@Model.BenutzerAnzahl</p>
+        </div>
+    </div>
+</div>
