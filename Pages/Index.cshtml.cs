@@ -268,8 +268,7 @@ namespace SchulungKK.Pages
          * Der Browser übermittelt nur die gewählten
          * Antwortnummern.
          */
-        public async Task<IActionResult>
-            OnPostQuizAuswertenAsync([FromBody] QuizAbgabe eingabe)
+        public async Task<IActionResult> OnPostQuizAuswertenAsync([FromBody] QuizAbgabe eingabe)
         {
             if (!VersucheBenutzerIdZuLesen(out int benutzerId))
             {
@@ -434,6 +433,78 @@ namespace SchulungKK.Pages
                 });
         }
 
+        // Zertifikat für Videos OHNE Quiz direkt ausstellen
+        public async Task<IActionResult> OnPostVideoAbgeschlossenAsync([FromBody] VideoAbschlussEingabe eingabe)
+        {
+            if (!VersucheBenutzerIdZuLesen(out int benutzerId))
+            {
+                return JsonFehler("Du bist nicht angemeldet.", StatusCodes.Status401Unauthorized);
+            }
+
+            Benutzer? benutzer = await _context.Benutzer.AsNoTracking().FirstOrDefaultAsync(b => b.Id == benutzerId && b.Aktiv);
+
+            if (benutzer == null)
+            {
+                HttpContext.Session.Clear();
+                return JsonFehler("Dein Benutzerkonto ist nicht aktiv.", StatusCodes.Status401Unauthorized);
+            }
+
+            // Prüfen ob das Video existiert, der Benutzer Zugriff hat UND kein Quiz vorhanden ist
+            var video = await _context.Schulungsvideos.AsNoTracking().Where(v => v.Id == eingabe.VideoId && v.Aktiv && v.Quiz == null // Nur Videos OHNE Quiz!
+            && v.GruppeVideos.Any(gv => gv.Gruppe.Aktiv && gv.Gruppe.BenutzerGruppen.Any(bg => bg.BenutzerId == benutzerId))).FirstOrDefaultAsync();
+
+            if (video == null)
+            {
+                return JsonFehler("Video nicht gefunden oder Quiz vorhanden.", StatusCodes.Status404NotFound);
+            }
+
+            // Wurde das Zertifikat bereits ausgestellt?
+            bool bereitsAusgestellt = await _context.QuizErgebnisse.AsNoTracking().AnyAsync(e => e.BenutzerId == benutzerId && e.VideoQuizId == null && e.QuizName == video.Titel);
+
+            if (bereitsAusgestellt)
+            {
+                return new JsonResult(new
+                {
+                    success = true,
+                    bereitsAusgestellt = true,
+                    message = "Du hast für dieses Video bereits ein Zertifikat erhalten."
+                });
+            }
+
+            // Zertifikat-Eintrag erstellen
+            var ergebnis = new QuizErgebnis
+            {
+                BenutzerId = benutzer.Id,
+                VideoQuizId = null,
+                Benutzername = benutzer.Benutzername,
+                QuizName = video.Titel,
+                Richtig = 1,
+                Gesamt = 1,
+                Prozent = 100,
+                Bestanden = true,
+                AbgeschlossenAm = DateTime.Now
+            };
+
+            _context.QuizErgebnisse.Add(ergebnis);
+            await _context.SaveChangesAsync();
+
+            string? zertifikatUrl = Url.Page("/Ergebnisse", "Zertifikat", new { id = ergebnis.Id });
+
+            return new JsonResult(new
+            {
+                success = true,
+                bereitsAusgestellt = false,
+                zertifikatUrl
+            });
+        }
+
+        // Neue Klasse ganz unten in der IndexModel Klasse hinzufügen:
+        public class VideoAbschlussEingabe
+        {
+            public int VideoId { get; set; }
+        }
+
+
         private bool VersucheBenutzerIdZuLesen(out int benutzerId)
         {
             benutzerId = 0;
@@ -460,12 +531,7 @@ namespace SchulungKK.Pages
 
         private static JsonResult JsonFehler(string nachricht, int statusCode)
         {
-            return new JsonResult(
-                new
-                {
-                    success = false,
-                    message = nachricht
-                })
+            return new JsonResult(new { success = false, message = nachricht })
             {
                 StatusCode = statusCode
             };
@@ -488,12 +554,7 @@ namespace SchulungKK.Pages
         {
             public int VideoQuizId { get; set; }
 
-            public List<QuizAntwortEingabe>
-                Antworten
-            {
-                get;
-                set;
-            } = new();
+            public List<QuizAntwortEingabe> Antworten { get; set; } = new();
         }
 
         public class QuizAntwortEingabe

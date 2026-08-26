@@ -256,12 +256,54 @@
 
             quizContainer.classList.remove('d-none');
 
-            if (video.dataset.hasQuiz !== 'true') 
-            {
-                quizContainer.replaceChildren(erstelleHinweis('Für dieses Video wurde noch kein Quiz hinterlegt.', 'info'));
+                    // ✅ NEU - kein Quiz → Zertifikat direkt ausstellen:
+        if (video.dataset.hasQuiz !== 'true')
+        {
+            quizContainer.replaceChildren(erstelleHinweis('Zertifikat wird ausgestellt …', 'secondary'));
 
-                return;
+            try {
+                const response = await fetch('?handler=VideoAbgeschlossen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'RequestVerificationToken': antiForgeryToken
+                    },
+                    body: JSON.stringify({ videoId: Number(video.dataset.videoId) })
+                });
+
+                const daten = await response.json();
+
+                if (!response.ok || daten.success !== true) {
+                    throw new Error(daten.message ?? 'Zertifikat konnte nicht ausgestellt werden.');
+                }
+
+                // Ergebnis-Bereich aufbauen – genau wie nach dem Quiz
+                quizContainer.replaceChildren();
+
+                const meldung = document.createElement('div');
+                meldung.className = 'alert alert-success';
+                meldung.textContent = daten.bereitsAusgestellt
+                    ? '✅ Du hast diese Schulung bereits abgeschlossen.'
+                    : '✅ Schulung erfolgreich abgeschlossen!';
+                quizContainer.appendChild(meldung);
+
+                if (daten.zertifikatUrl) {
+                    const zertifikat = document.createElement('a');
+                    zertifikat.href = daten.zertifikatUrl;
+                    zertifikat.className = 'btn btn-success';
+                    zertifikat.textContent = 'Zertifikat herunterladen';
+                    quizContainer.appendChild(zertifikat);
+                }
+
+            } catch (fehler) {
+                quizContainer.replaceChildren(erstelleHinweis(fehler.message ?? 'Zertifikat konnte nicht ausgestellt werden.', 'danger'));
             }
+
+            quizContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+
 
             if (quizContainer.dataset.loaded === 'true') 
             {
