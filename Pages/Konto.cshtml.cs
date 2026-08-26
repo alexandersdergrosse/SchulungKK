@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using SchulungKK.Data;
 using SchulungKK.Models;
 using System.ComponentModel.DataAnnotations;
+using BCrypt.Net;
+
 
 namespace SchulungKK.Pages
 {
@@ -103,7 +105,7 @@ namespace SchulungKK.Pages
                 return Page();
             }
 
-            if (benutzer.Passwort != AktuellesPasswort)
+            if (!BCrypt.Net.BCrypt.Verify(AktuellesPasswort, benutzer.Passwort))
             {
                 ErrorMessage = "Das aktuelle Passwort ist falsch.";
 
@@ -158,7 +160,7 @@ namespace SchulungKK.Pages
 
             if (passwortSollGeaendertWerden)
             {
-                benutzer.Passwort = NeuesPasswort;
+                benutzer.Passwort = BCrypt.Net.BCrypt.HashPassword(NeuesPasswort);
             }
 
             // Bereits gespeicherte Quiz-Ergebnisse ebenfalls
