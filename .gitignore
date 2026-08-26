@@ -118,6 +118,12 @@ ipch/
 *.vspx
 *.sap
 
+# Videos nicht in Git speichern
+wwwroot/videos/
+*.mp4
+*.webm
+*.ogg
+
 # Visual Studio Trace Files
 *.e2e
 
@@ -362,8 +368,3 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsdwwwroot/videos/*.mp4 
 
-# Videos nicht in Git speichern
-wwwroot/videos/
-*.mp4
-*.webm
-*.ogg
