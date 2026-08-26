@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsdwwwroot/videos/*.mp4 
+
+# Videos nicht in Git speichern
+wwwroot/videos/
+*.mp4
+*.webm
+*.ogg
