@@ -1,0 +1,256 @@
+﻿@page "/Admin/BenutzerGruppen"
+@model SchulungKK.Pages.Admin.BenutzerGruppenModel
+
+@{
+    ViewData["Title"] = "Benutzer und Gruppen";
+}
+
+<div class = "container mt-4 mb-5">
+    <div class = "d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Benutzer und Gruppen</h1>
+
+            <p class = "text-muted mb-0">
+                Benutzer einer oder mehreren Gruppen zuweisen.
+            </p>
+        </div>
+
+        <a asp-page = "/Admin/Index" class = "btn btn-outline-secondary">
+            Zur Administration
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Erfolgsmeldung))
+    {
+        <div class = "alert alert-success" role = "alert">
+            ✅ @Model.Erfolgsmeldung
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Fehlermeldung))
+    {
+        <div class = "alert alert-danger" role = "alert">
+            ❌ @Model.Fehlermeldung
+        </div>
+    }
+
+    <div class = "row g-4">
+        <div class = "col-lg-7">
+            <div class = "card shadow-sm">
+                <div class = "card-body">
+                    <div class = "d-flex justify-content-between align-items-center mb-3">
+
+                        <h2 class = "h4 mb-0">
+                            Benutzer
+                        </h2>
+
+                        <span class = "badge bg-secondary">
+                            @Model.BenutzerListe.Count
+                        </span>
+                    </div>
+
+                    @if (Model.BenutzerListe.Count == 0)
+                    {
+                        <div class = "alert alert-info mb-0">
+                            Es sind keine Benutzer vorhanden.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class = "table-responsive">
+                            <table class = "table table-hover align-middle">
+
+                                <thead class = "table-dark">
+                                    <tr>
+                                        <th>Benutzer</th>
+                                        <th>Gruppen</th>
+                                        <th>Status</th>
+                                        <th>Aktion</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var benutzer in Model.BenutzerListe)
+                                    {
+                                        bool istAusgewaehlt = Model.AusgewaehlterBenutzer?.Id == benutzer.Id;
+
+                                        <tr class = "@(istAusgewaehlt ? "table-primary" : "")">
+
+                                            <td>
+                                                <strong>
+                                                    @benutzer.Benutzername
+                                                </strong>
+                                                
+                                                <div class = "small text-muted">
+                                                    @benutzer.Name
+                                                </div>
+                                                
+                                                <div class = "small text-muted">
+                                                    @benutzer.Email
+                                                </div>
+
+                                                @if (benutzer.IstAdmin)
+                                                {
+                                                    <span class = "badge bg-primary mt-1">
+                                                        Administrator
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @if (benutzer.BenutzerGruppen.Count == 0)
+                                                {
+                                                    <span class = "text-muted">
+                                                        Keine Gruppe
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <div class = "d-flex flex-wrap gap-1">
+
+                                                        @foreach (var zuordnung in benutzer.BenutzerGruppen.OrderBy(bg => bg.Gruppe.Name))
+                                                        {
+                                                            <span class = "badge bg-secondary">
+                                                                @zuordnung.Gruppe.Name
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @if (benutzer.Aktiv)
+                                                {
+                                                    <span class = "badge bg-success">
+                                                        Aktiv
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class = "badge bg-secondary">
+                                                        Inaktiv
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <a asp-page = "/Admin/BenutzerGruppen" asp-route-benutzerId = "@benutzer.Id" class = "btn btn-sm btn-outline-primary">
+                                                    Zuordnen
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class = "col-lg-5">
+            <div class = "card shadow-sm">
+                <div class = "card-body">
+                    @if (Model.AusgewaehlterBenutzer == null)
+                    {
+                        <h2 class = "h4">
+                            Gruppen auswählen
+                        </h2>
+
+                        <div class = "alert alert-info mb-0">
+                            Wähle links einen Benutzer aus,
+                            um seine Gruppen zu bearbeiten.
+                        </div>
+                    }
+                    else
+                    {
+                        <h2 class = "h4 mb-1">
+                            Gruppen auswählen
+                        </h2>
+
+                        <p class = "text-muted mb-4">
+                            Benutzer:
+                            <strong>
+                                @Model.AusgewaehlterBenutzer.Benutzername
+                            </strong>
+                        </p>
+
+                        <form method = "post" asp-page-handler = "Speichern">
+
+                            <input asp-for = "BenutzerId" type = "hidden" />
+
+                            @if (Model.Gruppen.Count == 0)
+                            {
+                                <div class = "alert alert-warning">
+                                    Es wurden noch keine Gruppen angelegt.
+                                </div>
+
+                                <a asp-page = "/Admin/Gruppen" class = "btn btn-outline-primary">
+                                    Gruppe erstellen
+                                </a>
+                            }
+                            else
+                            {
+                                <div class = "mb-4">
+                                    @foreach (var gruppe in Model.Gruppen)
+                                    {
+                                        bool istZugeordnet = Model.AusgewaehlteGruppenIds.Contains(gruppe.Id);
+
+                                        <div class = "form-check border rounded p-3 ps-5 mb-2">
+
+                                            @if (istZugeordnet)
+                                            {
+                                                <input class = "form-check-input" type = "checkbox" name = "AusgewaehlteGruppenIds" value = "@gruppe.Id" id = "gruppe-@gruppe.Id" checked />
+                                            }
+                                            else
+                                            {
+                                                <input class = "form-check-input" type = "checkbox" name = "AusgewaehlteGruppenIds" value = "@gruppe.Id" id = "gruppe-@gruppe.Id" />
+                                            }
+
+                                            <label class = "form-check-label w-100" for = "gruppe-@gruppe.Id">
+                                                <strong>
+                                                    @gruppe.Name
+                                                </strong>
+
+                                                @if (!gruppe.Aktiv)
+                                                {
+                                                    <span class = "badge bg-secondary ms-1">
+                                                        Inaktiv
+                                                    </span>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(gruppe.Beschreibung))
+                                                {
+                                                    <span class = "d-block small text-muted">
+                                                        @gruppe.Beschreibung
+                                                    </span>
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class = "alert alert-light border">
+                                    Werden alle Häkchen entfernt,
+                                    gehört der Benutzer anschließend
+                                    keiner Gruppe mehr an.
+                                </div>
+
+                                <div class = "d-flex flex-wrap gap-2">
+                                    <button type = "submit" class = "btn btn-primary">
+                                        Zuordnungen speichern
+                                    </button>
+
+                                    <a asp-page = "/Admin/BenutzerGruppen" class = "btn btn-outline-secondary">
+                                        Abbrechen
+                                    </a>
+                                </div>
+                            }
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

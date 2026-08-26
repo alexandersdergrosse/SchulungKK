@@ -71,8 +71,7 @@ namespace SchulungKK.Pages
                     return Page();
                 }
 
-                var existingUser = await _context.Benutzer
-                    .AnyAsync(b => b.Benutzername == Username);
+                var existingUser = await _context.Benutzer.AnyAsync(b => b.Benutzername == Username);
 
                 if (existingUser)
                 {
@@ -80,8 +79,7 @@ namespace SchulungKK.Pages
                     return Page();
                 }
 
-                var existingEmail = await _context.Benutzer
-                    .AnyAsync(b => b.Email == Email);
+                var existingEmail = await _context.Benutzer.AnyAsync(b => b.Email == Email);
 
                 if (existingEmail)
                 {

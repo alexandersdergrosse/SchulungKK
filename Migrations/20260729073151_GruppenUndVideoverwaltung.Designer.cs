@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchulungKK.Data;
 
@@ -11,9 +12,11 @@ using SchulungKK.Data;
 namespace SchulungKK.Migrations
 {
     [DbContext(typeof(SchulungenDbContext))]
-    partial class SchulungenDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260729073151_GruppenUndVideoverwaltung")]
+    partial class GruppenUndVideoverwaltung
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,14 +177,9 @@ namespace SchulungKK.Migrations
                     b.Property<int>("Richtig")
                         .HasColumnType("int");
 
-                    b.Property<int?>("VideoQuizId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BenutzerId");
-
-                    b.HasIndex("VideoQuizId");
 
                     b.ToTable("QuizErgebnisse", (string)null);
                 });
@@ -223,58 +221,6 @@ namespace SchulungKK.Migrations
                         .IsUnique();
 
                     b.ToTable("Schulungsvideos", (string)null);
-                });
-
-            modelBuilder.Entity("SchulungKK.Models.VideoQuiz", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AktualisiertAm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Beschreibung")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("Bestehensgrenze")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ErstelltAm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FragenAnzahl")
-                        .HasColumnType("int");
-
-                    b.Property<string>("InhaltJson")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("MaximaleVersuche")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Quelldateiname")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<int>("SchulungsvideoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Titel")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SchulungsvideoId")
-                        .IsUnique();
-
-                    b.ToTable("VideoQuizze", (string)null);
                 });
 
             modelBuilder.Entity("SchulungKK.Models.BenutzerGruppe", b =>
@@ -323,25 +269,7 @@ namespace SchulungKK.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SchulungKK.Models.VideoQuiz", "VideoQuiz")
-                        .WithMany("QuizErgebnisse")
-                        .HasForeignKey("VideoQuizId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Benutzer");
-
-                    b.Navigation("VideoQuiz");
-                });
-
-            modelBuilder.Entity("SchulungKK.Models.VideoQuiz", b =>
-                {
-                    b.HasOne("SchulungKK.Models.Schulungsvideo", "Schulungsvideo")
-                        .WithOne("Quiz")
-                        .HasForeignKey("SchulungKK.Models.VideoQuiz", "SchulungsvideoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Schulungsvideo");
                 });
 
             modelBuilder.Entity("SchulungKK.Models.Benutzer", b =>
@@ -361,13 +289,6 @@ namespace SchulungKK.Migrations
             modelBuilder.Entity("SchulungKK.Models.Schulungsvideo", b =>
                 {
                     b.Navigation("GruppeVideos");
-
-                    b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("SchulungKK.Models.VideoQuiz", b =>
-                {
-                    b.Navigation("QuizErgebnisse");
                 });
 #pragma warning restore 612, 618
         }

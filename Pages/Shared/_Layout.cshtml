@@ -1,93 +1,157 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang = "de">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title> SchulungKK </title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SchulungKK.styles.css" asp-append-version="true" />
-    <link rel="icon" type="image/png" sizes="32x32" href="~/images/logok.png"> <!--Kleines Logo im Tab-->
-    <link rel="icon" type="image/png" sizes="16x16" href="~/images/logok.png"> <!--Kleines Logo im Tab-->
+    <meta charset = "utf-8" />
+
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SchulungKK</title>
+
+    <link rel = "stylesheet" href = "~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel = "stylesheet" href = "~/css/site.css" asp-append-version = "true" />
+
+    <link rel = "stylesheet" href = "~/SchulungKK.styles.css" asp-append-version = "true" />
+
+    <link rel = "icon" type = "image/png" href = "~/images/logok.png" />
 </head>
 
 <body>
+    @{
+        var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+
+        var isLoggedIn = Context.Session.GetString("IsLoggedIn") == "true";
+
+        var username = Context.Session.GetString("Username") ?? "Benutzer";
+
+        var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+    }
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class = "navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow">
+            <div class = "container-fluid px-3 px-lg-4">
 
-            <!--Button im Header als Logo der zur Homepage navigiert-->
-            <div class="container w-100 ms-3 p-0">
-                <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="images/kt-logo.png" height="90" width="450"></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <!-- Logo -->
+                <a class = "navbar-brand header-brand" asp-page = "/Index">
+
+                    <img src = "~/images/kt-logo.png" class = "header-logo" alt = "Kreutzträger Firmenlogo" />
+                </a>
+
+                <!-- Mobiler Menübutton -->
+                <button class = "navbar-toggler" type = "button" data-bs-toggle = "collapse" data-bs-target = "#mainNavigation" aria-controls = "mainNavigation"  aria-expanded = "false"  aria-label = "Navigation öffnen">
+
+                    <span class = "navbar-toggler-icon"></span>
                 </button>
+
+                <!-- Navigation -->
+                <div class = "collapse navbar-collapse" id = "mainNavigation">
+
+                    <ul class = "navbar-nav ms-auto align-items-lg-center">
+
+                        @if (isLoggedIn)
+                        {
+                            <!-- Benutzermenü -->
+                            <li class = "nav-item dropdown ms-lg-3">
+                                <a class = "nav-link dropdown-toggle user-menu-link" href = "#" id = "userDropdown" role = "button" data-bs-toggle = "dropdown" aria-expanded = "false">
+
+                                    👤 @username
+                                </a>
+
+                                <ul class = "dropdown-menu dropdown-menu-end" aria-labelledby = "userDropdown">
+
+                                    <li>
+                                        <h6 class = "dropdown-header">
+                                            Angemeldet als
+                                            <br />
+                                            <strong>@username</strong>
+                                        </h6>
+                                    </li>
+
+                                    <li>
+                                        <hr class = "dropdown-divider" />
+                                    </li>
+
+                                    <li>
+                                        <a class = "dropdown-item" asp-page = "/Index">
+
+                                            🏠 Startseite
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class = "dropdown-item" asp-page = "/Konto">
+
+                                            👤 Konto
+                                        </a>
+                                    </li>
+
+                                    @if (isAdmin)
+                                    {
+                                        <li>
+                                            <a class = "dropdown-item" asp-page = "/Admin/Index">
+                                                🛠️ Administration
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <hr class = "dropdown-divider" />
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <a class = "dropdown-item" asp-page = "/Ergebnisse">
+
+                                            📊 Meine Ergebnisse
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class = "dropdown-divider" />
+                                    </li>
+
+                                    <li>
+                                        <a class = "dropdown-item text-danger" asp-page = "/Abmelden">
+
+                                            🚪 Abmelden
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                                                }
+                        else
+                        {
+                            <li class = "nav-item">
+                                <a class = "nav-link @(currentPage == "/Anmelden" ? "active" : "")" asp-page = "/Anmelden">
+
+                                    Anmelden
+                                </a>
+                            </li>
+
+                            <li class = "nav-item ms-lg-2">
+                                <a class = "btn btn-outline-primary register-link @(currentPage == "/Registrieren" ? "active" : "")" asp-page = "/Registrieren">
+
+                                    Registrieren
+                                </a>
+                            </li>
+                                                }
+                    </ul>
+                </div>
             </div>
-
-            <!--Button im Header für die Anmeldung/Abmeldung-->
-            <ul class="navbar-nav ms-auto fs-5">
-                @{
-                    var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
-                }
-
-                @if (Context.Session.GetString("IsLoggedIn") == "true")
-                {
-                    <!-- Eingeloggt - Dropdown Menü -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            👤 @Context.Session.GetString("Username")
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li>
-                                <h6 class="dropdown-header">
-                                    Angemeldet als<br>
-                                    <strong>@Context.Session.GetString("Username")</strong>
-                                </h6>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" asp-page="/Index">
-                                    🏠 Startseite
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" asp-page="/Abmelden">
-                                    🚪 Abmelden
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                }
-                else if (currentPage != "/Anmelden")
-                {
-                    <!-- Nicht eingeloggt UND nicht auf Anmelde-Seite -->
-                    <li class="nav-item">
-                        <a class="navbar-brand" asp-page="/Anmelden">Anmeldung</a>
-                    </li>
-                }
-                else if (currentPage != "/Abmelden" && currentPage != "/Registrieren")
-                {
-                    <!-- Auf anderen Seiten - Zeige Anmelden Button -->
-                    <li class="nav-item">
-                        <a class="navbar-brand" asp-page="/Registrieren">Registrieren</a>
-                    </li>
-                }
-            </ul>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <main role = "main" class = "page-content">
+        @RenderBody()
+    </main>
+
+    <script src = "~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src = "~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src = "~/js/site.js" asp-append-version = "true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

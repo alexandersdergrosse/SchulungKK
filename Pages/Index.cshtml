@@ -1,227 +1,615 @@
 ﻿@page
-@model IndexModel
-@{}
+@model SchulungKK.Pages.IndexModel
 
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video mit Quiz</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+@{
+    ViewData["Title"] = "Meine Schulungen";
+}
+
+<style>
+    .schulungs-kopf {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: end;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .video-auswahl-form {
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .video-anzeige {
+        width: 100%;
+        max-width: 1100px;
+    }
+
+    .video-card {
+        padding: 24px;
+        background-color: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 10px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .training-video {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        background-color: #000000;
+    }
+
+    .video-quiz {
+        padding-top: 20px;
+        border-top: 1px solid #dddddd;
+    }
+
+    .quiz-question {
+        padding: 18px;
+        margin-bottom: 18px;
+        background-color: #f8f9fa;
+        border: 1px solid #dddddd;
+        border-left: 4px solid #0d6efd;
+        border-radius: 8px;
+    }
+
+        .quiz-question.unanswered {
+            background-color: #fff3f3;
+            border-left-color: #dc3545;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
+        .quiz-question legend {
+            float: none;
+            width: auto;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            font-weight: 600;
         }
 
-        video {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 30px;
+    .quiz-option {
+        display: block;
+        padding: 11px 12px;
+        margin-bottom: 8px;
+        background-color: #ffffff;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+        .quiz-option:hover {
+            background-color: #eef5ff;
+            border-color: #0d6efd;
         }
 
-        #quiz {
-            display: none;
+        .quiz-option input {
+            margin-right: 8px;
         }
 
-        .quiz-question {
-            background: #f9f9f9;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
+    @@media (max-width: 767.98px) {
+        .schulungs-kopf {
+            align-items: stretch;
         }
 
-            .quiz-question h3 {
-                margin-top: 0;
-                color: #333;
-            }
-
-        .quiz-option {
-            display: block;
-            padding: 12px;
-            margin: 8px 0;
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .video-auswahl-form {
+            max-width: none;
         }
 
-            .quiz-option:hover {
-                background: #e3f2fd;
-                border-color: #007bff;
-            }
-
-            .quiz-option input[type="radio"] {
-                margin-right: 10px;
-            }
-
-        .submit-btn {
-            background: #007bff;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
+        .video-card {
+            padding: 16px;
         }
+    }
+</style>
 
-            .submit-btn:hover {
-                background: #0056b3;
-            }
+@Html.AntiForgeryToken()
 
-        #result {
-            display: none;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+<div class="container py-4">
+    <div class="schulungs-kopf">
+        <div>
+            <h1>Meine Schulungen</h1>
 
-        .correct {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-
-        .incorrect {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="text-center">Schulungsvideo</h1>
-
-        <video id="myVideo" controls>
-            <source src="videos/Imagefilm.mp4" type="video/mp4">
-            Dein Browser unterstützt das Video-Tag nicht.
-        </video>
-
-        <div id="quiz">
-            <div class="loading">Quiz wird geladen...</div>
+            <p class="text-muted mb-0">
+                Wähle eine Schulung aus und beende das Video,
+                um das zugehörige Quiz zu öffnen.
+            </p>
         </div>
+
+        @if (Model.Videos.Count > 1)
+        {
+            <form method="get" class="video-auswahl-form">
+
+                <label for="videoId" class="form-label fw-bold">
+                    Schulung auswählen
+                </label>
+
+                <select id="videoId" name="videoId" class="form-select" onchange="this.form.submit()">
+
+                    @foreach (var video in Model.Videos)
+                    {
+                        if (video.Id == Model.AusgewaehltesVideo?.Id)
+                        {
+                            <option value="@video.Id" selected>
+                                @video.Titel
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@video.Id">
+                                @video.Titel
+                            </option>
+                        }
+                    }
+                </select>
+
+                <noscript>
+                    <button type="submit" class="btn btn-primary mt-2">
+                        Schulung anzeigen
+                    </button>
+                </noscript>
+            </form>
+        }
     </div>
 
+    @if (Model.Videos.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+
+            <h2 class="h5">
+                Keine Schulungsvideos verfügbar
+            </h2>
+
+            <p class="mb-0">
+                Deinem Benutzer wurden momentan keine
+                Schulungsvideos zugewiesen.
+            </p>
+        </div>
+    }
+    else if (Model.AusgewaehltesVideo != null)
+    {
+        var video = Model.AusgewaehltesVideo!;
+
+        <div class="video-anzeige">
+            <article class="video-card">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+
+                    <h2 class="h4 mb-0">
+                        @video.Titel
+                    </h2>
+
+                    <span class="badge bg-secondary">
+                        Video
+                        @Model.AusgewaehltesVideoPosition
+                        von
+                        @Model.Videos.Count
+                    </span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(video.Beschreibung))
+                {
+                    <p class="text-muted">
+                        @video.Beschreibung
+                    </p>
+                }
+
+                <video class="training-video" controls preload="metadata" data-video-id="@video.Id" data-has-quiz="@(video.HatQuiz ? "true" : "false")">
+
+                <source src="@video.VideoUrl" type="@video.ContentType" />
+                    Dein Browser unterstützt dieses
+                    Videoformat nicht.
+                </video>
+
+                <div id="video-status-@video.Id" class="alert alert-secondary mt-3 mb-0" role="status">
+                    Video noch nicht abgeschlossen.
+                </div>
+
+                <section id="quiz-@video.Id" class="video-quiz d-none mt-4" aria-live="polite"></section>
+            </article>
+        </div>
+        }
+
+    @if (Model.FehlendeVideosAnzahl > 0)
+    {
+        <div class="alert alert-warning mt-4" role="alert">
+            @Model.FehlendeVideosAnzahl zugewiesene
+            Videodatei(en) konnten nicht gefunden werden.
+            Bitte informiere einen Administrator.
+        </div>
+    }
+</div>
+
+@section Scripts
+{
     <script>
-        const video = document.getElementById('myVideo');
-        const quizContainer = document.getElementById('quiz');
-        let quizData = null;
-        let correctAnswers = {};
+        const trainingVideo = document.querySelector('.training-video');
 
-        // Fragen aus JSON-Datei laden
-        fetch('fragen.json')
-            .then(response => response.json())
-            .then(data => {
-                quizData = data;
-                createQuiz();
-            })
-            .catch(error => {
-                console.error('Fehler beim Laden der Fragen:', error);
-                quizContainer.innerHTML = '<p style="color: red;">Fehler beim Laden der Fragen. Bitte überprüfe die fragen.json Datei.</p>';
-            });
+        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]') ?.value;
 
-        // Quiz erstellen
-        function createQuiz() {
-            let quizHTML = `
-                <h2> ${quizData.titel}</h2>
-                <p>${quizData.beschreibung}</p>
-                <form id="quizForm">
-            `;
+        if (trainingVideo) 
+        {
+            trainingVideo.addEventListener('ended', async () => 
+            {
+                    const videoId = Number(trainingVideo.dataset.videoId);
 
-            quizData.fragen.forEach((item, index) => {
-                const questionNumber = index + 1;
-                const questionName = `q${questionNumber}`;
+                    const status = document.getElementById(`video-status-${videoId}`);
 
-                // Richtige Antwort speichern
-                correctAnswers[questionName] = item.richtig;
+                    if (status) 
+                    {
+                        status.className = 'alert alert-success mt-3 mb-0';
 
-                quizHTML += `
-                    <div class="quiz-question">
-                        <h3>${questionNumber}. ${item.frage}</h3>
-                `;
+                        status.textContent = '✅ Video abgeschlossen.';
+                    }
 
-                item.antworten.forEach((antwort, answerIndex) => {
-                    quizHTML += `
-                        <label class="quiz-option">
-                            <input type="radio" name="${questionName}" value="${answerIndex}">
-                            ${antwort}
-                        </label>
-                    `;
+                    await zeigeQuiz(trainingVideo);
+                });
+        }
+
+        async function zeigeQuiz(video) 
+        {
+            const videoId = Number(video.dataset.videoId);
+
+            const quizContainer = document.getElementById( `quiz-${videoId}`);
+
+            if (!quizContainer) 
+            {
+                return;
+            }
+
+            quizContainer.classList.remove('d-none');
+
+            if (video.dataset.hasQuiz !== 'true') 
+            {
+                quizContainer.replaceChildren(erstelleHinweis('Für dieses Video wurde noch kein Quiz hinterlegt.', 'info'));
+
+                return;
+            }
+
+            if (quizContainer.dataset.loaded === 'true') 
+            {
+                quizContainer.scrollIntoView({ behavior: 'smooth', block: 'start'});
+
+                return;
+            }
+
+            quizContainer.replaceChildren(erstelleHinweis('Quiz wird geladen …', 'secondary'));
+
+            try {
+                const response = await fetch(`?handler=Quiz&videoId=${encodeURIComponent(videoId)}`,
+                        {
+                            method: 'GET',
+                            headers: 
+                            {
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                const daten = await response.json();
+
+                if (!response.ok || daten.success !== true) 
+                {
+                    throw new Error(daten.message ?? 'Das Quiz konnte nicht geladen werden.');
+                }
+
+                        if (daten.darfTeilnehmen === false)
+        {
+            const typ = daten.bereitsBestanden ? 'success' : 'warning';
+
+            quizContainer.replaceChildren(erstelleHinweis(daten.message, typ));
+
+            quizContainer.dataset.loaded = 'true';
+
+            quizContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            return;
+        }
+
+                quizContainer.dataset.loaded = 'true';
+
+                erstelleQuiz(quizContainer, daten);
+
+                quizContainer.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+            catch (fehler) {console.error(fehler);
+
+                quizContainer.replaceChildren(erstelleHinweis(fehler.message ?? 'Das Quiz konnte nicht geladen werden.', 'danger'));
+            }
+        }
+
+        function erstelleQuiz(container, quiz) 
+        {
+            container.replaceChildren();
+
+            const ueberschrift = document.createElement('h3');
+
+            ueberschrift.className = 'h4';
+
+            ueberschrift.textContent = quiz.titel;
+
+            container.appendChild(ueberschrift);
+
+            if (quiz.beschreibung) 
+            {
+                const beschreibung = document.createElement('p');
+
+                beschreibung.className = 'text-muted';
+
+                beschreibung.textContent = quiz.beschreibung;
+
+                container.appendChild(beschreibung);
+            }
+
+            const grenze = document.createElement('p');
+
+            grenze.className = 'small text-muted';
+
+            grenze.textContent = `Bestehensgrenze: ` + `${quiz.bestehensgrenze} %`;
+
+            container.appendChild(grenze);
+            
+            const versuchsInfo = document.createElement('p');
+            
+            versuchsInfo.className = 'small text-muted';
+            
+            if (quiz.maximaleVersuche === null)
+            {
+                versuchsInfo.textContent = 'Versuche: unbegrenzt';
+            }
+            else
+            {
+                versuchsInfo.textContent = `Versuche: ${quiz.bisherigeVersuche} ` + `von ${quiz.maximaleVersuche} verwendet`;
+            }
+            
+            container.appendChild(versuchsInfo);
+
+            const formular = document.createElement('form');
+
+            formular.noValidate = true;
+
+            quiz.fragen.forEach((frage, frageIndex) => 
+            {
+                    const feld = document.createElement('fieldset');
+
+                    feld.className ='quiz-question';
+
+                    feld.dataset.frageIndex = frageIndex;
+
+                    const legende = document.createElement('legend');
+
+                    legende.textContent = `${frageIndex + 1}. ` + frage.text;
+
+                    feld.appendChild(legende);
+
+                    frage.antworten.forEach((antwort, antwortIndex) => {
+                            const label = document.createElement('label');
+
+                            label.className = 'quiz-option';
+
+                            const radio = document.createElement('input');
+
+                            radio.type = 'radio';
+
+                            radio.name = `quiz-${quiz.quizId}-frage-${frageIndex}`;
+
+                            radio.value = antwortIndex;
+
+                            label.appendChild(radio);
+
+                            label.appendChild(document.createTextNode(antwort));
+
+                            feld.appendChild(label);
+                        });
+
+                    formular.appendChild(feld);
                 });
 
-                quizHTML += `</div>`;
-            });
+            const warnung = document.createElement('div');
 
-            quizHTML += `
-                    <button type="submit" class="submit-btn">Quiz auswerten</button>
-                </form>
-                <div id="result"></div>
-            `;
+            warnung.className = 'alert alert-warning d-none';
 
-            quizContainer.innerHTML = quizHTML;
+            warnung.setAttribute('role', 'alert');
 
-            // Event Listener für Formular
-            document.getElementById('quizForm').addEventListener('submit', evaluateQuiz);
+            formular.appendChild(warnung);
+
+            const absenden = document.createElement('button');
+
+            absenden.type = 'submit';
+
+            absenden.className = 'btn btn-primary';
+
+            absenden.textContent = 'Quiz auswerten';
+
+            formular.appendChild(absenden);
+
+            const ergebnis = document.createElement('div');
+
+            ergebnis.className = 'mt-3';
+
+            formular.appendChild(ergebnis);
+
+            formular.addEventListener('submit',
+                event => {
+                    werteQuizAus(event, quiz, warnung, absenden, ergebnis);
+                });
+
+            container.appendChild(formular);
         }
 
-        // Quiz auswerten
-        function evaluateQuiz(e) {
-            e.preventDefault();
+        async function werteQuizAus( event, quiz, warnung, absenden, ergebnis) 
+        {
+            event.preventDefault();
 
-            let score = 0;
-            let total = Object.keys(correctAnswers).length;
+            const formular = event.currentTarget;
 
-            for (let question in correctAnswers) {
-                const userAnswer = document.querySelector(`input[name="${question}"]:checked`);
-                if (userAnswer && parseInt(userAnswer.value) === correctAnswers[question]) {
-                    score++;
+            const antworten = [];
+            let fehltAntwort = false;
+
+            quiz.fragen.forEach((frage, frageIndex) => 
+                {
+                    const feld = formular.querySelector(`[data-frage-index="${frageIndex}"]`);
+
+                    const ausgewaehlt = formular.querySelector(`input[name="quiz-${quiz.quizId}-frage-${frageIndex}"]:checked`);
+
+                    if (!ausgewaehlt) 
+                    {
+                        fehltAntwort = true;
+
+                        feld?.classList.add('unanswered');
+
+                        return;
+                    }
+
+                    feld?.classList.remove('unanswered');
+
+                    antworten.push(
+                    {
+                        frageIndex: frageIndex,
+
+                        antwortIndex: Number(ausgewaehlt.value)
+                    });
+                });
+
+            if (fehltAntwort) 
+            {
+                warnung.classList.remove('d-none');
+
+                warnung.textContent = 'Bitte beantworte alle Fragen.';
+
+                const ersteOffeneFrage = formular.querySelector('.quiz-question.unanswered');
+
+                ersteOffeneFrage?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                return;
+            }
+
+            warnung.classList.add('d-none');
+
+            absenden.disabled = true;
+            absenden.textContent = 'Wird ausgewertet …';
+
+            try {
+                const response =
+                    await fetch('?handler=QuizAuswerten',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+
+                                'Accept': 'application/json',
+
+                                'RequestVerificationToken': antiForgeryToken
+                            },
+
+                            body: JSON.stringify({
+                                videoQuizId: quiz.quizId,
+
+                                antworten: antworten
+                            })
+                        });
+
+                const daten = await response.json();
+
+                if (!response.ok || daten.success !== true) 
+                {
+                    throw new Error(daten.message ?? 'Das Quiz konnte nicht ausgewertet werden.');
+                }
+
+                ergebnis.replaceChildren();
+
+                const meldung = document.createElement('div');
+
+                meldung.className = daten.bestanden ? 'alert alert-success' : 'alert alert-danger';
+
+                meldung.textContent = daten.bestanden
+                     ? `✅ Bestanden: ${daten.richtigeAntworten} von ${daten.gesamt} richtig (${daten.prozent} %).`
+                     : `❌ Nicht bestanden: ${daten.richtigeAntworten} von ${daten.gesamt} richtig (${daten.prozent} %). Erforderlich sind ${daten.bestehensgrenze} %.`;
+
+                ergebnis.appendChild(meldung);
+
+                if (daten.bestanden) 
+                {
+                    formular.querySelectorAll('input[type="radio"]').forEach(eingabe => { eingabe.disabled = true; });
+
+                    absenden.disabled = true;
+
+                    absenden.textContent = 'Quiz bestanden';
+
+                    if (daten.zertifikatUrl) 
+                    {
+                        const zertifikat = document.createElement('a');
+
+                        zertifikat.href = daten.zertifikatUrl;
+
+                        zertifikat.className = 'btn btn-success';
+
+                        zertifikat.textContent = 'Zertifikat herunterladen';
+
+                        ergebnis.appendChild(zertifikat);
+                    }
+                } 
+                else
+                {
+                    if (daten.verbleibendeVersuche === 0)
+                    {
+                        formular.querySelectorAll('input[type="radio"]').forEach(eingabe => { eingabe.disabled = true; });
+                        
+                        absenden.disabled = true;
+                        
+                        absenden.textContent = 'Keine Versuche mehr';
+                        
+                        const hinweis = document.createElement('div');
+                        
+                        hinweis.className = 'alert alert-warning mt-2';
+                        
+                        hinweis.textContent = 'Du hast alle verfügbaren Quizversuche verwendet.';
+                        
+                        ergebnis.appendChild(hinweis);
+                    }
+                    else
+                    {
+                        absenden.disabled = false;
+                        
+                        absenden.textContent = 'Erneut versuchen';
+                        
+                        if (daten.verbleibendeVersuche !== null)
+                        {
+                            const hinweis = document.createElement('div');
+                            
+                            hinweis.className = 'alert alert-info mt-2';
+                            
+                            hinweis.textContent = `Noch ${daten.verbleibendeVersuche} ` + `Versuch(e) verfügbar.`;
+                            
+                            ergebnis.appendChild(hinweis);
+                        }
+                        
+                    }
+                    
                 }
             }
+            catch (fehler) 
+            {
+                console.error(fehler);
 
-            const result = document.getElementById('result');
-            result.style.display = 'block';
-            const percentage = Math.round((score / total) * 100);
+                ergebnis.replaceChildren(erstelleHinweis(fehler.message ?? 'Das Quiz konnte nicht ausgewertet werden.', 'danger'));
 
-            if (percentage >= 70) {
-                result.className = 'correct';
-                result.innerHTML = `✅ Sehr gut! Du hast ${score} von ${total} Fragen richtig beantwortet (${percentage}%)`;
-            } else {
-                result.className = 'incorrect';
-                result.innerHTML = `❌ Leider nicht bestanden. Du hast ${score} von ${total} Fragen richtig beantwortet (${percentage}%). Schau dir das Video nochmal an.`;
+                absenden.disabled = false;
+
+                absenden.textContent = 'Quiz auswerten';
             }
-
-            result.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Quiz anzeigen wenn Video endet
-        video.addEventListener('ended', function() {
-            quizContainer.style.display = 'block';
-            quizContainer.scrollIntoView({ behavior: 'smooth' });
-        });
+        function erstelleHinweis(text, typ) 
+        {
+            const hinweis = document.createElement('div');
+
+            hinweis.className = `alert alert-${typ}`;
+
+            hinweis.setAttribute('role', 'alert');
+
+            hinweis.textContent = text;
+
+            return hinweis;
+        }
     </script>
-</body>
-</html>
-
-
+}

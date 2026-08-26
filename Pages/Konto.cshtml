@@ -1,0 +1,142 @@
+﻿@page
+@model SchulungKK.Pages.KontoModel
+
+@{
+    ViewData["Title"] = "Konto";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-7 col-xl-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="mb-4">
+                    <h1 class="h2 mb-2">Konto</h1>
+
+                    <p class="text-muted mb-0">
+                        Hier kannst du deine Anmeldedaten ändern.
+                    </p>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(
+                                Model.SuccessMessage))
+                {
+                    <div class="alert alert-success" role="alert">
+                        ✅ @Model.SuccessMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        ❌ @Model.ErrorMessage
+                    </div>
+                }
+
+                <form method="post">
+
+                    <div class="mb-3">
+                        <label asp-for="Benutzername" class="form-label fw-bold">
+                            Anmeldename
+                        </label>
+
+                        <input asp-for="Benutzername"
+                               type="text"
+                               class="form-control"
+                               required
+                               minlength="3"
+                               maxlength="50"
+                               autocomplete="username">
+
+                        <div class="form-text">
+                            Mit diesem Namen kannst du dich anmelden.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Email" class="form-label fw-bold">
+                            E-Mail-Adresse
+                        </label>
+
+                        <input asp-for="Email"
+                               type="email"
+                               class="form-control"
+                               required
+                               maxlength="100"
+                               autocomplete="email">
+
+                        <div class="form-text">
+                            Die Anmeldung ist auch mit dieser
+                            E-Mail-Adresse möglich.
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h2 class="h5 mb-3">
+                        Passwort ändern
+                    </h2>
+
+                    <p class="text-muted">
+                        Lasse die beiden neuen Passwortfelder leer,
+                        wenn du dein Passwort nicht ändern möchtest.
+                    </p>
+
+                    <div class="mb-3">
+                        <label asp-for="NeuesPasswort" class="form-label fw-bold">
+                            Neues Passwort
+                        </label>
+
+                        <input asp-for="NeuesPasswort"
+                               type="password"
+                               class="form-control"
+                               minlength="6"
+                               autocomplete="new-password">
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="NeuesPasswortBestaetigung" class="form-label fw-bold">
+                            Neues Passwort wiederholen
+                        </label>
+
+                        <input asp-for="NeuesPasswortBestaetigung"
+                               type="password"
+                               class="form-control"
+                               minlength="6"
+                               autocomplete="new-password">
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="mb-4">
+                        <label asp-for="AktuellesPasswort" class="form-label fw-bold">
+                            Aktuelles Passwort
+                        </label>
+
+                        <input asp-for="AktuellesPasswort"
+                               type="password"
+                               class="form-control"
+                               required
+                               autocomplete="current-password">
+
+                        <div class="form-text">
+                            Zur Bestätigung musst du dein aktuelles
+                            Passwort eingeben.
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Änderungen speichern
+                        </button>
+
+                        <a asp-page="/Index" class="btn btn-outline-secondary">
+                            Abbrechen
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

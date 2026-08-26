@@ -1,0 +1,287 @@
+﻿@page "/Admin/Quizze"
+@model SchulungKK.Pages.Admin.QuizzeModel
+
+@{
+    ViewData["Title"] = "Quizverwaltung";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Quizverwaltung</h1>
+
+            <p class="text-muted mb-0">
+                Word-Quizdateien hochladen und mit
+                Schulungsvideos verbinden.
+            </p>
+        </div>
+
+        <a asp-page="/Admin/Index" class="btn btn-outline-secondary">
+            Zur Administration
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Erfolgsmeldung))
+    {
+        <div class="alert alert-success" role="alert">
+            ✅ @Model.Erfolgsmeldung
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Fehlermeldung))
+    {
+        <div class="alert alert-danger" role="alert">
+            ❌ @Model.Fehlermeldung
+        </div>
+    }
+
+    <div id="upload"
+         class="card shadow-sm mb-4">
+
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+
+                <h2 class="h4 mb-0">
+                    Word-Quiz hochladen
+                </h2>
+
+                <a href="/vorlagen/Quizvorlage_SchulungKK.docx" class="btn btn-outline-secondary" download>
+                    Word-Vorlage herunterladen
+                </a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" asp-page-handler="Hochladen">
+
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label asp-for="VideoId" class="form-label fw-bold">
+                            Schulungsvideo
+                        </label>
+
+                        <select asp-for="VideoId" class="form-select" required>
+
+                            <option value="">
+                                Bitte ein Video auswählen
+                            </option>
+
+                            @foreach (var video in Model.Videos)
+                            {
+                                <option value="@video.Id">
+                                    @video.Titel
+
+                                    @if (video.Quiz != null)
+                                    {
+                                        @: – vorhandenes Quiz wird ersetzt
+                                    }
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <label asp-for="WordDatei" class="form-label fw-bold">
+                            Word-Datei
+                        </label>
+
+                        <input asp-for="WordDatei" type="file" class="form-control" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required />
+
+                        <div class="form-text">
+                            Erlaubt sind DOCX-Dateien bis 5 MB.
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <label asp-for="MaximaleVersuche" class="form-label fw-bold">
+                            Maximale Versuche
+                        </label>
+
+                        <input asp-for="MaximaleVersuche" type="number" min="1" max="20" class="form-control" />
+
+                        <div class="form-text">
+                            1 = genau ein Versuch,
+                            3 = insgesamt drei Versuche,
+                            leer = unbegrenzt.
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Quiz hochladen und verbinden
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        Wird für ein Video erneut eine Word-Datei
+        hochgeladen, ersetzt sie das bisherige Quiz.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h2 class="h4 mb-0">
+                    Videos und Quizze
+                </h2>
+
+                <span class="badge bg-secondary">
+                    @Model.Videos.Count
+                </span>
+            </div>
+
+            @if (Model.Videos.Count == 0)
+            {
+                <div class="alert alert-warning mb-0">
+                    Es sind noch keine Videos vorhanden.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Video</th>
+                                <th>Quiz</th>
+                                <th>Fragen</th>
+                                <th>Grenze</th>
+                                <th>Max. Versuche</th>
+                                <th>Datei</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var video in Model.Videos)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>
+                                            @video.Titel
+                                        </strong>
+
+                                        <div class="small text-muted">
+                                            @video.Dateiname
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @if (video.Quiz == null)
+                                        {
+                                            <span class="text-muted">
+                                                Kein Quiz
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <strong>
+                                                @video.Quiz.Titel
+                                            </strong>
+
+                                            @if (!string.IsNullOrWhiteSpace(video.Quiz.Beschreibung))
+                                            {
+                                                <div class="small text-muted">
+                                                    @video.Quiz.Beschreibung
+                                                </div>
+                                            }
+                                        }
+                                    </td>
+
+                                <td>
+                                    @(video.Quiz?.FragenAnzahl.ToString() ?? "–")
+                                </td>
+
+                            <td>
+                                @if (video.Quiz == null)
+                                {
+                                    <span>–</span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        @video.Quiz.Bestehensgrenze %
+                                    </span>
+                                }
+                            </td>
+
+                                    <td style="min-width: 190px;">
+                                        @if (video.Quiz == null)
+                                        {
+                                            <span>–</span>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="VersucheSpeichern" class="d-flex gap-2">
+
+                                                <input type="hidden" name="id" value="@video.Quiz.Id" />
+
+                                                <input type="number" name="maximaleVersuche" min="1" max="20" value="@(video.Quiz.MaximaleVersuche?.ToString() ?? "")" class="form-control form-control-sm" style="width: 80px;" placeholder="∞" />
+
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                    Speichern
+                                                </button>
+                                            </form>
+
+                                            <div class="small text-muted mt-1">
+                                                @if (video.Quiz.MaximaleVersuche.HasValue)
+                                                {
+                                                    <span>
+                                                        Insgesamt
+                                                        @video.Quiz.MaximaleVersuche.Value
+                                                        Versuch(e)
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>
+                                                        Unbegrenzt
+                                                    </span>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+
+                            <td>
+                                @if (video.Quiz == null)
+                                {
+                                    <span>–</span>
+                                }
+                                else
+                                {
+                                    <code>@video.Quiz.Quelldateiname</code>
+                                }
+                            </td>
+
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+
+                                        <a asp-page="/Admin/Quizze" asp-route-videoId="@video.Id" asp-fragment="upload" class="btn btn-sm btn-outline-primary">
+
+                                            @(video.Quiz == null ? "Quiz hochladen" : "Quiz ersetzen")
+                                    </a>
+
+                                    @if (video.Quiz != null)
+                                            {
+                                                <form method="post" asp-page-handler="Loeschen" onsubmit="return confirm('Soll dieses Quiz wirklich gelöscht werden?');">
+
+                                                    <input type="hidden" name="id" value="@video.Quiz.Id" />
+
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        Quiz löschen
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,158 @@
+﻿@page "/Admin"
+@model SchulungKK.Pages.Admin.IndexModel
+
+@{
+    ViewData["Title"] = "Administration";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Administration</h1>
+
+            <p class="text-muted mb-0">
+                Benutzer, Gruppen, Videos und Quizze verwalten.
+            </p>
+        </div>
+
+        <a asp-page="/Index"
+           class="btn btn-outline-secondary">
+            Zur Schulungsseite
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Benutzer
+                    </h2>
+
+                    <p class="display-6 mb-2">
+                        @Model.BenutzerAnzahl
+                    </p>
+
+                    <p class="text-muted">
+                        Benutzer Gruppen zuweisen.
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white">
+                    <a asp-page="/Admin/BenutzerGruppen" class="btn btn-outline-primary w-100">
+                        Benutzer verwalten
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Gruppen
+                    </h2>
+
+                    <p class="display-6 mb-2">
+                        @Model.GruppenAnzahl
+                    </p>
+
+                    <p class="text-muted">
+                        Gruppen erstellen und bearbeiten.
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white">
+                    <a asp-page="/Admin/Gruppen" class="btn btn-outline-primary w-100">
+                        Gruppen verwalten
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Videos
+                    </h2>
+
+                    <p class="display-6 mb-2">
+                        @Model.VideoAnzahl
+                    </p>
+
+                    <p class="text-muted">
+                        Videos hochladen und Gruppen zuweisen.
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white">
+                    <div class="d-grid gap-2">
+                        <a asp-page="/Admin/Videos" class="btn btn-outline-primary">
+                            Videos verwalten
+                        </a>
+
+                        <a asp-page="/Admin/VideoGruppen" class="btn btn-outline-secondary">
+                            Gruppen zuweisen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">
+                        Quizze
+                    </h2>
+
+                    <p class="display-6 mb-2">
+                        @Model.QuizAnzahl
+                    </p>
+
+                    <p class="text-muted">
+                        Word-Quizdateien mit Videos verbinden.
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white">
+                    <a asp-page="/Admin/Quizze" class="btn btn-outline-success w-100">
+                        Quizze verwalten
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h2 class="h4 mb-3">
+                Verwaltungsbereiche
+            </h2>
+
+            <div class="list-group list-group-flush">
+                <a asp-page="/Admin/BenutzerGruppen" class="list-group-item list-group-item-action px-0">
+                    Benutzer Gruppen zuweisen
+                </a>
+
+                <a asp-page="/Admin/Gruppen" class="list-group-item list-group-item-action px-0">
+                    Gruppen verwalten
+                </a>
+
+                <a asp-page="/Admin/Videos" class="list-group-item list-group-item-action px-0">
+                    Schulungsvideos hochladen und bearbeiten
+                </a>
+
+                <a asp-page="/Admin/VideoGruppen" class="list-group-item list-group-item-action px-0">
+                    Videos Gruppen zuweisen
+                </a>
+
+                <a asp-page="/Admin/Quizze" class="list-group-item list-group-item-action px-0">
+                    Word-Quizdateien hochladen und verbinden
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

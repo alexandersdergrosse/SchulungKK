@@ -1,0 +1,291 @@
+﻿@page "/Admin/Videos"
+@model SchulungKK.Pages.Admin.VideosModel
+
+@{
+    ViewData["Title"] = "Videoverwaltung";
+
+    bool wirdBearbeitet =
+        Model.BearbeitenId.HasValue;
+}
+
+<div class = "container mt-4 mb-5">
+    <div class = "d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Videoverwaltung</h1>
+
+            <p class = "text-muted mb-0">
+                Schulungsvideos hochladen, bearbeiten,
+                Gruppen zuweisen oder löschen.
+            </p>
+        </div>
+
+        <a asp-page = "/Admin/Index" class = "btn btn-outline-secondary">
+            Zur Administration
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Erfolgsmeldung))
+    {
+        <div class = "alert alert-success" role = "alert">
+            ✅ @Model.Erfolgsmeldung
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Fehlermeldung))
+    {
+        <div class = "alert alert-danger" role = "alert">
+            ❌ @Model.Fehlermeldung
+        </div>
+    }
+
+    <div class = "card shadow-sm mb-4">
+        <div class = "card-body">
+            <h2 class = "h4 mb-3">
+                Neues Video hochladen
+            </h2>
+
+            <form method = "post" enctype = "multipart/form-data" asp-page-handler = "Hochladen">
+                <div class = "row g-3 align-items-end">
+                    <div class = "col-lg-8">
+                        <label asp-for = "UploadDatei" class = "form-label fw-bold">
+                            Videodatei
+                        </label>
+
+                        <input asp-for = "UploadDatei" type = "file" class = "form-control" accept = ".mp4,.webm,.ogg,video/mp4,video/webm,video/ogg" />
+
+                        <div class = "form-text">
+                            Erlaubte Formate: MP4, WebM und OGG.
+                            Maximale Dateigröße: 1 GB.
+                        </div>
+                    </div>
+
+                    <div class = "col-lg-4">
+                        <button type = "submit"
+                                class = "btn btn-primary w-100">
+                            Video hochladen
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class = "alert alert-light border mt-3 mb-0">
+                Der Titel wird zunächst automatisch aus dem
+                Dateinamen erstellt. Danach kannst du Titel,
+                Beschreibung und Reihenfolge bearbeiten.
+            </div>
+        </div>
+    </div>
+
+    @if (wirdBearbeitet)
+    {
+        <div class = "card shadow-sm mb-4">
+            <div class = "card-body">
+                <h2 class = "h4 mb-4">
+                    Video bearbeiten
+                </h2>
+
+                <form method = "post" asp-page-handler = "Speichern">
+
+                    <input asp-for = "BearbeitenId" type = "hidden" />
+
+                    <div asp-validation-summary = "ModelOnly"
+                         class = "text-danger mb-3">
+                    </div>
+
+                    <div class = "row g-3">
+                        <div class = "col-md-6">
+                            <label class = "form-label fw-bold">
+                                Dateiname
+                            </label>
+
+                            <input type = "text" class = "form-control" value = "@Model.BearbeitenDateiname" readonly />
+                        </div>
+
+                        <div class = "col-md-6">
+                            <label asp-for = "Reihenfolge" class = "form-label fw-bold">
+                                Reihenfolge
+                            </label>
+
+                            <input asp-for = "Reihenfolge" type = "number" min = "0" max = "10000" class = "form-control" />
+
+                            <span asp-validation-for = "Reihenfolge" class = "text-danger">
+                            </span>
+                        </div>
+
+                        <div class = "col-12">
+                            <label asp-for = "Titel"
+                                   class="form-label fw-bold">
+                                Titel
+                            </label>
+
+                            <input asp-for = "Titel" class = "form-control" maxlength = "150" />
+
+                            <span asp-validation-for = "Titel" class = "text-danger">
+                            </span>
+                        </div>
+
+                        <div class = "col-12">
+                            <label asp-for = "Beschreibung" class = "form-label fw-bold">
+                                Beschreibung
+                            </label>
+
+                            <textarea asp-for = "Beschreibung" class = "form-control" rows = "4" maxlength = "500"></textarea>
+
+                            <span asp-validation-for = "Beschreibung" class = "text-danger">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class= "d-flex flex-wrap gap-2 mt-4">
+                        <button type = "submit" class = "btn btn-primary">
+                            Änderungen speichern
+                        </button>
+
+                        <a asp-page = "/Admin/Videos" class = "btn btn-outline-secondary">
+                            Abbrechen
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class = "card shadow-sm">
+        <div class = "card-body">
+            <div class = "d-flex justify-content-between align-items-center mb-3">
+
+                <h2 class = "h4 mb-0">
+                    Schulungsvideos
+                </h2>
+
+                <span class = "badge bg-secondary">
+                    @Model.Videos.Count
+                </span>
+            </div>
+
+            @if (Model.Videos.Count == 0)
+            {
+                <div class = "alert alert-info mb-0">
+                    Es wurden noch keine Videos hochgeladen.
+                </div>
+            }
+            else
+            {
+                <div class = "table-responsive">
+                    <table class = "table table-hover align-middle">
+
+                        <thead class = "table-dark">
+                            <tr>
+                                <th>Video</th>
+                                <th>Datei</th>
+                                <th>Reihenfolge</th>
+                                <th>Gruppen</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var eintrag in Model.Videos)
+                            {
+                                var video = eintrag.Video;
+
+                                <tr>
+                                    <td style = "min-width: 230px;">
+                                        <strong>
+                                            @video.Titel
+                                        </strong>
+
+                                        @if (!string.IsNullOrWhiteSpace(video.Beschreibung))
+                                        {
+                                            <div class = "small text-muted">
+                                                @video.Beschreibung
+                                            </div>
+                                        }
+
+                                        @if (eintrag.DateiVorhanden)
+                                        {
+                                            <details class = "mt-2">
+                                                <summary class = "small">
+                                                    Video anzeigen
+                                                </summary>
+
+                                                <video controls preload = "metadata" class = "w-100 mt-2" style = "max-width: 360px;">
+
+                                                    <source src="@eintrag.VideoUrl" />
+
+                                                    Dein Browser unterstützt
+                                                    dieses Videoformat nicht.
+                                                </video>
+                                            </details>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <code>
+                                            @video.Dateiname
+                                        </code>
+
+                                        <div class = "mt-1">
+                                            @if (eintrag.DateiVorhanden)
+                                            {
+                                                <span class = "badge bg-success">
+                                                    Datei vorhanden
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class = "badge bg-danger">
+                                                    Datei fehlt
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @video.Reihenfolge
+                                    </td>
+
+                                    <td>
+                                        @video.GruppeVideos.Count
+                                    </td>
+
+                                    <td style = "min-width: 260px;">
+                                        <div class = "d-flex flex-wrap gap-2">
+
+                                            <a asp-page = "/Admin/Videos" asp-route-bearbeitenId = "@video.Id" class = "btn btn-sm btn-outline-primary">
+                                                Bearbeiten
+                                            </a>
+
+                                            <a asp-page = "/Admin/VideoGruppen" asp-route-videoId = "@video.Id" class = "btn btn-sm btn-outline-secondary">
+                                                Gruppen
+                                            </a>
+
+                                            <a asp-page="/Admin/Quizze" asp-route-videoId="@video.Id" asp-fragment="upload" class="btn btn-sm btn-outline-success">
+                                                Quiz
+                                            </a>
+
+                                            <form method = "post" asp-page-handler = "Loeschen" onsubmit = "return confirm('Soll dieses Video wirklich dauerhaft gelöscht werden?');">
+
+                                                <input type = "hidden" name = "id" value = "@video.Id" />
+
+                                                <button type = "submit" class = "btn btn-sm btn-outline-danger">
+                                                    Löschen
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name = "_ValidationScriptsPartial" />
+}

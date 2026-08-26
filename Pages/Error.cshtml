@@ -1,0 +1,66 @@
+﻿@page
+@model SchulungKK.Pages.ErrorModel
+
+@{
+    ViewData["Title"] = "Fehler";
+}
+
+<div class = "container mt-5">
+    <div class = "card shadow-sm">
+        <div class = "card-body p-4 text-center">
+
+            <div class = "mb-3" style="font-size: 60px;">
+                ⚠️
+            </div>
+
+            @if (Model.HttpStatusCode == 403)
+            {
+                <h1 class = "h3">
+                    Zugriff verweigert
+                </h1>
+
+                <p class = "text-muted">
+                    Du besitzt keine Berechtigung,
+                    diesen Verwaltungsbereich zu öffnen.
+                </p>
+            }
+            else if (Model.HttpStatusCode == 404)
+            {
+                <h1 class = "h3">
+                    Seite nicht gefunden
+                </h1>
+
+                <p class = "text-muted">
+                    Die angeforderte Seite ist nicht vorhanden
+                    oder wurde verschoben.
+                </p>
+            }
+            else
+            {
+                <h1 class = "h3">
+                    Ein Fehler ist aufgetreten
+                </h1>
+
+                <p class = "text-muted">
+                    Die Anfrage konnte leider nicht verarbeitet werden.
+                    Bitte versuche es später erneut.
+                </p>
+            }
+
+            <a asp-page = "/Index" class = "btn btn-primary mt-3">
+                Zur Startseite
+            </a>
+
+            @if (Model.ShowRequestId)
+            {
+                <div class = "mt-4">
+                    <small class = "text-muted">
+                        Anfrage-ID:
+                        <code>@Model.RequestId</code>
+                    </small>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

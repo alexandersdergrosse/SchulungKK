@@ -1,4 +1,4 @@
-﻿@page
+﻿ @page
 @model SchulungKK.Pages.RegistrierenModel
 @{
     ViewData["Title"] = "Registrieren";
@@ -138,8 +138,6 @@
 @if (ViewData["RedirectToLogin"] != null && (bool)ViewData["RedirectToLogin"])
 {
     <script>
-        setTimeout(function() {
-            window.location.href = '/Anmelden';
-        }, 1000); // Nach 1 Sekunden zur Anmelde-Seite
+        setTimeout(function() { window.location.href = '/Anmelden';}, 1000); // Nach 1 Sekunden zur Anmelde-Seite
     </script>
 }

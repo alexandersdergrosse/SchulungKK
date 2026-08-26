@@ -15,57 +15,62 @@ namespace SchulungKK.Pages
         }
 
         [BindProperty]
-        public string Username { get; set; } = string.Empty;
+        public string LoginName { get; set; } = string.Empty;
 
         [BindProperty]
         public string Password { get; set; } = string.Empty;
 
         public string ErrorMessage { get; set; } = string.Empty;
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
-            var isLoggedIn = HttpContext.Session.GetString("IsLoggedIn");
-            if (!string.IsNullOrEmpty(isLoggedIn) && isLoggedIn == "true")
+            if (HttpContext.Session.GetString("IsLoggedIn") == "true")
             {
-                Response.Redirect("/Index");
+                return RedirectToPage("/Index");
             }
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            try
+            if (string.IsNullOrWhiteSpace(LoginName) || string.IsNullOrEmpty(Password))
             {
-                if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
-                {
-                    ErrorMessage = "Bitte Benutzername und Passwort eingeben!";
-                    return Page();
-                }
+                ErrorMessage = "Bitte Benutzername oder E-Mail und Passwort eingeben.";
 
-                var benutzer = await _context.Benutzer
-                    .FirstOrDefaultAsync(b => b.Benutzername == Username && b.Aktiv == true);
-
-                if (benutzer != null && benutzer.Passwort == Password)
-                {
-                    HttpContext.Session.SetString("IsLoggedIn", "true");
-                    HttpContext.Session.SetString("Username", benutzer.Benutzername);
-                    HttpContext.Session.SetString("UserFullName", benutzer.Name);
-                    HttpContext.Session.SetString("UserId", benutzer.Id.ToString());
-
-                    benutzer.LetzterLogin = DateTime.Now;
-                    await _context.SaveChangesAsync();
-
-                    return RedirectToPage("/Index");
-                }
-
-                ErrorMessage = "Benutzername oder Passwort falsch!";
                 return Page();
             }
-            catch (Exception ex)
+
+            string normalisierteEingabe = LoginName.Trim().ToLower();
+
+            var benutzer = await _context.Benutzer.FirstOrDefaultAsync(b => b.Aktiv &&
+                    (
+                        b.Benutzername.ToLower() == normalisierteEingabe ||
+                        b.Email.ToLower() == normalisierteEingabe
+                    ));
+
+            if (benutzer == null || benutzer.Passwort != Password)
             {
-                ErrorMessage = $"Fehler: {ex.Message}";
+                ErrorMessage = "Benutzername, E-Mail oder Passwort ist falsch.";
+
                 return Page();
             }
+
+            HttpContext.Session.SetString("IsLoggedIn", "true");
+
+            HttpContext.Session.SetString("Username", benutzer.Benutzername);
+
+            HttpContext.Session.SetString("UserFullName", benutzer.Name);
+
+            HttpContext.Session.SetString("UserId", benutzer.Id.ToString());
+
+            HttpContext.Session.SetString("IsAdmin", benutzer.IstAdmin ? "true" : "false");
+
+            benutzer.LetzterLogin = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage("/Index");
         }
     }
 }
-  

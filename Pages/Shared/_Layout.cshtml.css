@@ -1,48 +1,156 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
-
+﻿/* Allgemeine Links */
 a {
-  color: #0077cc;
+    color: #0077cc;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/* Kopfzeile */
+.navbar {
+    min-height: 72px;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/* Logo-Link */
+.header-brand {
+    width: 100%;
+    max-width: 320px;
+    margin-right: 20px;
+    padding: 0;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
+/* Logo passt sich der verfügbaren Breite an */
+.header-logo {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
 }
+
+/* Navigation */
+.navbar-nav {
+    font-size: 1.05rem;
+}
+
+.navbar .nav-link {
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: #333;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+    .navbar .nav-link:hover {
+        color: #0066cc;
+        background-color: #f1f6fb;
+    }
+
+    /* Aktuell geöffnete Seite */
+    .navbar .nav-link.active {
+        color: #0066cc;
+        font-weight: 600;
+        background-color: #eaf3fc;
+    }
+
+/* Benutzer-Dropdown */
+.user-menu-link {
+    font-weight: 600;
+}
+
+/* Registrierungsbutton */
+.register-link {
+    min-width: 120px;
+}
+
+    .register-link.active {
+        color: white;
+        background-color: #0d6efd;
+    }
+
+/* Dropdown */
+.dropdown-menu {
+    min-width: 220px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 10px 18px;
+}
+
+    .dropdown-item:hover {
+        background-color: #f1f6fb;
+    }
+
+/* Hauptinhalt */
+.page-content {
+    width: 100%;
+    padding: 24px;
+}
+
+/* Unterer Rahmen und Schatten */
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+/* Darstellung auf Tablets und Smartphones */
+@media (max-width: 991.98px) {
+    .navbar {
+        min-height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .header-brand {
+        width: calc(100% - 70px);
+        max-width: 260px;
+        margin-right: 10px;
+    }
+
+    .header-logo {
+        max-width: 260px;
+    }
+
+    .navbar-collapse {
+        padding-top: 18px;
+    }
+
+    .navbar-nav {
+        align-items: stretch;
+    }
+
+    .navbar .nav-link {
+        margin-bottom: 5px;
+    }
+
+    .register-link {
+        display: block;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .dropdown-menu {
+        border: 1px solid #e5e5e5;
+        box-shadow: none;
+    }
+
+    .page-content {
+        padding: 18px;
+    }
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+/* Darstellung auf kleinen Smartphones */
+@media (max-width: 575.98px) {
+    .header-brand {
+        max-width: 210px;
+    }
+
+    .header-logo {
+        max-width: 210px;
+    }
+
+    .page-content {
+        padding: 12px;
+    }
 }

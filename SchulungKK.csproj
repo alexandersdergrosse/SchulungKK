@@ -7,36 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migration\**" />
-    <Compile Remove="wwwroot\meine-website\**" />
-    <Compile Remove="wwwroot\NewFolder\**" />
-    <Content Remove="Migration\**" />
-    <Content Remove="wwwroot\meine-website\**" />
-    <Content Remove="wwwroot\NewFolder\**" />
-    <EmbeddedResource Remove="Migration\**" />
-    <EmbeddedResource Remove="wwwroot\meine-website\**" />
-    <EmbeddedResource Remove="wwwroot\NewFolder\**" />
-    <None Remove="Migration\**" />
-    <None Remove="wwwroot\meine-website\**" />
-    <None Remove="wwwroot\NewFolder\**" />
+    <None Remove="Format-Projekt.ps1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Pages\Error.cshtml.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="fragen.json" />
-    <Content Remove="Pages\Error.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.5.1" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.24" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.24">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\vorlagen\" />
   </ItemGroup>
 
 </Project>

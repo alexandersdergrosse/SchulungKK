@@ -1,0 +1,249 @@
+﻿@page "/Admin/VideoGruppen"
+@model SchulungKK.Pages.Admin.VideoGruppenModel
+
+@{
+    ViewData["Title"] = "Videos und Gruppen";
+}
+
+<div class = "container mt-4 mb-5">
+    <div class = "d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Videos und Gruppen</h1>
+
+            <p class = "text-muted mb-0">
+                Festlegen, welche Gruppen ein Schulungsvideo sehen dürfen.
+            </p>
+        </div>
+
+        <a asp-page = "/Admin/Index" class = "btn btn-outline-secondary">
+            Zur Administration
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Erfolgsmeldung))
+    {
+        <div class = "alert alert-success" role = "alert">
+            ✅ @Model.Erfolgsmeldung
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Fehlermeldung))
+    {
+        <div class = "alert alert-danger" role = "alert">
+            ❌ @Model.Fehlermeldung
+        </div>
+    }
+
+    <div class = "row g-4">
+        <div class = "col-lg-7">
+            <div class = "card shadow-sm">
+                <div class = "card-body">
+                    <div class = "d-flex justify-content-between align-items-center mb-3">
+
+                        <h2 class = "h4 mb-0">
+                            Schulungsvideos
+                        </h2>
+
+                        <span class = "badge bg-secondary">
+                            @Model.VideoListe.Count
+                        </span>
+                    </div>
+
+                    @if (Model.VideoListe.Count == 0)
+                    {
+                        <div class = "alert alert-info mb-0">
+                            Es sind noch keine Schulungsvideos vorhanden.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class = "table-responsive">
+                            <table class = "table table-hover align-middle">
+
+                                <thead class = "table-dark">
+                                    <tr>
+                                        <th>Video</th>
+                                        <th>Gruppen</th>
+                                        <th>Status</th>
+                                        <th>Aktion</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var video in Model.VideoListe)
+                                    {
+                                        bool istAusgewaehlt = Model.AusgewaehltesVideo?.Id == video.Id;
+
+                                        <tr class = "@(istAusgewaehlt ? "table-primary" : "")">
+
+                                            <td>
+                                                <strong>
+                                                    @video.Titel
+                                                </strong>
+
+                                                <div class = "small text-muted">
+                                                    @video.Dateiname
+                                                </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(video.Beschreibung))
+                                                {
+                                                    <div class = "small text-muted">
+                                                        @video.Beschreibung
+                                                    </div>
+                                                }
+
+                                                <div class = "small text-muted">
+                                                    Reihenfolge:
+                                                    @video.Reihenfolge
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                @if (video.GruppeVideos.Count == 0)
+                                                {
+                                                    <span class = "text-muted">
+                                                        Keine Gruppe
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <div class = "d-flex flex-wrap gap-1">
+
+                                                        @foreach (var zuordnung in video.GruppeVideos.OrderBy(gv => gv.Gruppe.Name))
+                                                        {
+                                                            <span class = "badge bg-secondary">
+                                                                @zuordnung.Gruppe.Name
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @if (video.Aktiv)
+                                                {
+                                                    <span class = "badge bg-success">
+                                                        Aktiv
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class = "badge bg-secondary">
+                                                        Inaktiv
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <a asp-page = "/Admin/VideoGruppen" asp-route-videoId = "@video.Id" class = "btn btn-sm btn-outline-primary">
+                                                    Zuordnen
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class = "col-lg-5">
+            <div class = "card shadow-sm">
+                <div class = "card-body">
+                    @if (Model.AusgewaehltesVideo == null)
+                    {
+                        <h2 class = "h4">
+                            Gruppen auswählen
+                        </h2>
+
+                        <div class = "alert alert-info mb-0">
+                            Wähle links ein Video aus,
+                            um seine Gruppen zu bearbeiten.
+                        </div>
+                    }
+                    else
+                    {
+                        <h2 class = "h4 mb-1">
+                            Gruppen auswählen
+                        </h2>
+
+                        <p class = "text-muted mb-4">
+                            Video:
+                            <strong>
+                                @Model.AusgewaehltesVideo.Titel
+                            </strong>
+                        </p>
+
+                        <form method = "post" asp-page-handler = "Speichern">
+
+                            <input asp-for="VideoId" type="hidden" />
+
+                            @if (Model.Gruppen.Count == 0)
+                            {
+                                <div class = "alert alert-warning">
+                                    Es wurden noch keine Gruppen angelegt.
+                                </div>
+
+                                <a asp-page = "/Admin/Gruppen" class = "btn btn-outline-primary">
+                                    Gruppe erstellen
+                                </a>
+                            }
+                            else
+                            {
+                                <div class = "mb-4">
+                                    @foreach (var gruppe in Model.Gruppen)
+                                    {
+                                        bool istZugeordnet = Model.AusgewaehlteGruppenIds.Contains(gruppe.Id);
+
+                                        <div class = "form-check border rounded p-3 ps-5 mb-2">
+
+                                            <input class = "form-check-input" type = "checkbox" name = "AusgewaehlteGruppenIds" value = "@gruppe.Id" id = "video-gruppe-@gruppe.Id" checked = "@istZugeordnet" />
+
+                                            <label class = "form-check-label w-100" for = "video-gruppe-@gruppe.Id">
+                                                <strong>
+                                                    @gruppe.Name
+                                                </strong>
+
+                                                @if (!gruppe.Aktiv)
+                                                {
+                                                    <span class = "badge bg-secondary ms-1">
+                                                        Inaktiv
+                                                    </span>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(gruppe.Beschreibung))
+                                                {
+                                                    <span class = "d-block small text-muted">
+                                                        @gruppe.Beschreibung
+                                                    </span>
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class = "alert alert-light border">
+                                    Ein Video ohne Gruppenzuordnung wird später
+                                    keinem normalen Benutzer angezeigt.
+                                </div>
+
+                                <div class = "d-flex flex-wrap gap-2">
+                                    <button type = "submit" class = "btn btn-primary">
+                                        Zuordnungen speichern
+                                    </button>
+
+                                    <a asp-page = "/Admin/VideoGruppen" class = "btn btn-outline-secondary">
+                                        Abbrechen
+                                    </a>
+                                </div>
+                            }
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

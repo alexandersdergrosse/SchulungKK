@@ -1,0 +1,127 @@
+﻿@page
+@model SchulungKK.Pages.ErgebnisseModel
+
+@{
+    ViewData["Title"] = "Meine Ergebnisse";
+}
+
+<div class = "container mt-4">
+    <div class = "d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Meine Ergebnisse</h1>
+
+            <p class = "text-muted mb-0">
+                Ergebnisse von
+                <strong>@Model.Benutzername</strong>
+            </p>
+        </div>
+
+        <a asp-page = "/Index" class = "btn btn-primary">
+            Zurück zur Schulung
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Fehlermeldung))
+    {
+        <div class = "alert alert-danger" role = "alert">
+            @Model.Fehlermeldung
+        </div>
+    }
+
+    @if (Model.Ergebnisse.Count == 0)
+    {
+        <div class = "alert alert-info">
+            Du hast bisher noch kein Quiz abgeschlossen.
+        </div>
+    }
+    else
+    {
+        <div class = "table-responsive">
+            <table class = "table table-striped table-hover align-middle">
+
+                <thead class = "table-dark">
+                    <tr>
+                        <th>Benutzername</th>
+                        <th>Quiz</th>
+                        <th>Richtig</th>
+                        <th>Gesamt</th>
+                        <th>Prozent</th>
+                        <th>Status</th>
+                        <th>Abgeschlossen am</th>
+                        <th>Zertifikat</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var ergebnis in Model.Ergebnisse)
+                    {
+                        <tr>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(ergebnis.Benutzername))
+                                {
+                                    @Model.Benutzername
+                                }
+                                else
+                                {
+                                    @ergebnis.Benutzername
+                                }
+                            </td>
+
+                            <td>
+                                @ergebnis.QuizName
+                            </td>
+
+                            <td>
+                                @ergebnis.Richtig
+                            </td>
+
+                            <td>
+                                @ergebnis.Gesamt
+                            </td>
+
+                            <td>
+                                @ergebnis.Prozent.ToString("0.##") %
+                            </td>
+
+                            <td>
+                                @if (ergebnis.Bestanden)
+                                {
+                                    <span class = "badge bg-success">
+                                        Bestanden
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class = "badge bg-danger">
+                                        Nicht bestanden
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @ergebnis.AbgeschlossenAm.ToString("dd.MM.yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                @if (ergebnis.Bestanden)
+                                {
+                                    <a asp-page = "/Ergebnisse" asp-page-handler = "Zertifikat" asp-route-id = "@ergebnis.Id" class = "btn btn-sm btn-outline-primary">
+
+                                        📄 Herunterladen
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class = "text-muted">
+                                        Nicht verfügbar
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

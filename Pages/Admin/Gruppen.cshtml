@@ -1,0 +1,230 @@
+﻿@page "/Admin/Gruppen"
+@model SchulungKK.Pages.Admin.GruppenModel
+
+@{
+    ViewData["Title"] = "Gruppenverwaltung";
+
+    bool wirdBearbeitet = Model.BearbeitenId.HasValue;
+}
+
+<div class = "container mt-4 mb-5">
+    <div class = "d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1>Gruppenverwaltung</h1>
+
+            <p class = "text-muted mb-0">
+                Gruppen anlegen, bearbeiten und deaktivieren.
+            </p>
+        </div>
+
+        <a asp-page = "/Admin/Index" class = "btn btn-outline-secondary">
+            Zur Administration
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Erfolgsmeldung))
+    {
+        <div class = "alert alert-success" role="alert">
+            ✅ @Model.Erfolgsmeldung
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Fehlermeldung))
+    {
+        <div class = "alert alert-danger" role="alert">
+            ❌ @Model.Fehlermeldung
+        </div>
+    }
+
+    <div class = "row g-4">
+        <div class = "col-lg-4">
+            <div class = "card shadow-sm">
+                <div class = "card-body">
+                    <h2 class = "h4 mb-4">
+                        @if (wirdBearbeitet)
+                        {
+                            <text>Gruppe bearbeiten</text>
+                        }
+                        else
+                        {
+                            <text>Neue Gruppe</text>
+                        }
+                    </h2>
+
+                    <form method = "post" asp-page-handler = "Speichern">
+
+                        <input asp-for = "BearbeitenId" type = "hidden" />
+
+                        <div asp-validation-summary = "ModelOnly" class = "text-danger mb-3"></div>
+
+                        <div class = "mb-3">
+                            <label asp-for = "Name" class = "form-label fw-bold">
+                                Gruppenname
+                            </label>
+
+                            <input asp-for = "Name" class = "form-control" maxlength = "100" placeholder = "Zum Beispiel Produktion" />
+
+                            <span asp-validation-for = "Name" class = "text-danger">
+                            </span>
+                        </div>
+
+                        <div class = "mb-4">
+                            <label asp-for = "Beschreibung" class = "form-label fw-bold">
+                                Beschreibung
+                            </label>
+
+                            <textarea asp-for = "Beschreibung" class = "form-control" rows = "5" maxlength = "500" placeholder = "Optionale Beschreibung der Gruppe"></textarea>
+
+                            <span asp-validation-for = "Beschreibung" class = "text-danger"></span>
+                        </div>
+
+                        <div class = "d-flex flex-wrap gap-2">
+                            <button type = "submit" class = "btn btn-primary">
+                                @if (wirdBearbeitet)
+                                {
+                                    <text>Änderungen speichern</text>
+                                }
+                                else
+                                {
+                                    <text>Gruppe erstellen</text>
+                                }
+                            </button>
+
+                            @if (wirdBearbeitet)
+                            {
+                                <a asp-page = "/Admin/Gruppen" class = "btn btn-outline-secondary">
+                                    Abbrechen
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class = "col-lg-8">
+            <div class = "card shadow-sm">
+                <div class = "card-body">
+                    <div class = "d-flex justify-content-between align-items-center mb-3">
+
+                        <h2 class = "h4 mb-0">
+                            Vorhandene Gruppen
+                        </h2>
+
+                        <span class = "badge bg-secondary">
+                            @Model.Gruppen.Count
+                        </span>
+                    </div>
+
+                    @if (Model.Gruppen.Count == 0)
+                    {
+                        <div class = "alert alert-info mb-0">
+                            Es wurden bisher keine Gruppen angelegt.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class = "table-responsive">
+                            <table class = "table table-hover align-middle">
+
+                                <thead class = "table-dark">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Benutzer</th>
+                                        <th>Videos</th>
+                                        <th>Status</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var gruppe in Model.Gruppen)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    @gruppe.Name
+                                                </strong>
+
+                                                @if (!string.IsNullOrWhiteSpace(gruppe.Beschreibung))
+                                                {
+                                                    <div class = "small text-muted">
+                                                        @gruppe.Beschreibung
+                                                    </div>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @gruppe.BenutzerGruppen.Count
+                                            </td>
+
+                                            <td>
+                                                @gruppe.GruppeVideos.Count
+                                            </td>
+
+                                            <td>
+                                                @if (gruppe.Aktiv)
+                                                {
+                                                    <span class = "badge bg-success">
+                                                        Aktiv
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class = "badge bg-secondary">
+                                                        Inaktiv
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <div class = "d-flex flex-wrap gap-2">
+
+                                                    <a asp-page = "/Admin/Gruppen" asp-route-bearbeitenId = "@gruppe.Id" class = "btn btn-sm btn-outline-primary">
+                                                        Bearbeiten
+                                                    </a>
+
+                                                    <form method = "post" asp-page-handler = "StatusAendern">
+
+                                                        <input type = "hidden" name = "id" value = "@gruppe.Id" />
+
+                                                        @if (gruppe.Aktiv)
+                                                        {
+                                                            <button type = "submit" class = "btn btn-sm btn-outline-warning">
+                                                                Deaktivieren
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button type = "submit" class = "btn btn-sm btn-outline-success">
+                                                                Aktivieren
+                                                            </button>
+                                                        }
+                                                    </form>
+
+                                                    <form method = "post" asp-page-handler = "Loeschen" onsubmit = "return confirm('Soll diese Gruppe wirklich gelöscht werden? ' + 'Die Zuordnungen zu Benutzern und Videos werden ebenfalls entfernt.');">
+
+                                                        <input type = "hidden" name = "id" value = "@gruppe.Id" />
+
+                                                        <button type = "submit" class = "btn btn-sm btn-outline-danger">
+                                                            Löschen
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name = "_ValidationScriptsPartial" />
+}

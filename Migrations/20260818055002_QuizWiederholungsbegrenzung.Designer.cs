@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchulungKK.Data;
 
@@ -11,9 +12,11 @@ using SchulungKK.Data;
 namespace SchulungKK.Migrations
 {
     [DbContext(typeof(SchulungenDbContext))]
-    partial class SchulungenDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260818055002_QuizWiederholungsbegrenzung")]
+    partial class QuizWiederholungsbegrenzung
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,7 +256,7 @@ namespace SchulungKK.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MaximaleVersuche")
+                    b.Property<int?>("MaximaleWiederholungen")
                         .HasColumnType("int");
 
                     b.Property<string>("Quelldateiname")
