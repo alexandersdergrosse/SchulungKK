@@ -1,3 +1,4 @@
+using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -15,28 +16,18 @@ namespace SchulungKK.Pages
             _context = context;
         }
 
-        [BindProperty]
-        public string Name { get; set; } = string.Empty;
-
-        [BindProperty]
-        public string Username { get; set; } = string.Empty;
-
-        [BindProperty]
-        public string Email { get; set; } = string.Empty;
-
-        [BindProperty]
-        public string Password { get; set; } = string.Empty;
-
-        [BindProperty]
-        public string PasswordConfirm { get; set; } = string.Empty;
+        [BindProperty] public string Name { get; set; } = string.Empty;
+        [BindProperty] public string Username { get; set; } = string.Empty;
+        [BindProperty] public string Email { get; set; } = string.Empty;
+        [BindProperty] public string Password { get; set; } = string.Empty;
+        [BindProperty] public string PasswordConfirm { get; set; } = string.Empty;
 
         public string ErrorMessage { get; set; } = string.Empty;
         public string SuccessMessage { get; set; } = string.Empty;
 
         public void OnGet()
         {
-            var isLoggedIn = HttpContext.Session.GetString("IsLoggedIn");
-            if (!string.IsNullOrEmpty(isLoggedIn) && isLoggedIn == "true")
+            if (HttpContext.Session.GetString("IsLoggedIn") == "true")
             {
                 Response.Redirect("/Index");
             }
@@ -46,8 +37,7 @@ namespace SchulungKK.Pages
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Username) ||
-                    string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+                if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
                 {
                     ErrorMessage = "Bitte alle Felder ausfüllen!";
                     return Page();
@@ -71,28 +61,27 @@ namespace SchulungKK.Pages
                     return Page();
                 }
 
-                var existingUser = await _context.Benutzer.AnyAsync(b => b.Benutzername == Username);
-
-                if (existingUser)
+                bool benutzernameVergeben = await _context.Benutzer.AnyAsync(b => b.Benutzername == Username);
+                if (benutzernameVergeben)
                 {
                     ErrorMessage = "Benutzername bereits vergeben!";
                     return Page();
                 }
 
-                var existingEmail = await _context.Benutzer.AnyAsync(b => b.Email == Email);
-
-                if (existingEmail)
+                bool emailVergeben = await _context.Benutzer.AnyAsync(b => b.Email == Email);
+                if (emailVergeben)
                 {
                     ErrorMessage = "E-Mail-Adresse bereits registriert!";
                     return Page();
                 }
 
+                // ? Passwort wird gehasht gespeichert
                 var neuerBenutzer = new Benutzer
                 {
                     Benutzername = Username,
                     Name = Name,
                     Email = Email,
-                    Passwort = Password,
+                    Passwort = BCrypt.Net.BCrypt.HashPassword(Password),
                     RegistriertAm = DateTime.Now,
                     Aktiv = true
                 };
@@ -102,16 +91,11 @@ namespace SchulungKK.Pages
 
                 SuccessMessage = "Registrierung erfolgreich! Sie können sich jetzt anmelden.";
                 ViewData["RedirectToLogin"] = true;
-
                 return Page();
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Fehler: {ex.Message}";
-                if (ex.InnerException != null)
-                {
-                    ErrorMessage += $" | {ex.InnerException.Message}";
-                }
+                ErrorMessage = $"Fehler beim Speichern: {ex.Message}";
                 return Page();
             }
         }
